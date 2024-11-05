@@ -1,0 +1,26 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container my-3">
+	
+	<div class="blank" style="text-shadow: -2px 0 #fff, 0 2px #fff, 2px 0 #fff, 0 -2px #fff;">
+	<a href="/breadmap/notice">공지사항</a></div>
+	
+	<form>
+		<ul class="board_detail">
+			<div class="subject" th:text="${notice.subject}"></div>
+			<div class="date" th:text="${#temporals.format(notice.createDate, 'yyyy-MM-dd')}"></div><br>
+			<div class="content" th:text="${notice.content}"></div>
+		</ul>
+
+	    <tbody>
+	        <tr th:each="notice, index : ${noticeList}">
+	            <td>
+	                <a th:href="@{|/breadmap/notice/${notice.id}|}" th:text="${notice.subject}"></a>
+	            </td>
+	            <td th:text="${question.createDate}"></td>
+	        </tr>
+	    </tbody>
+	</table>
+	
+	</ul>
+	
+	</form>

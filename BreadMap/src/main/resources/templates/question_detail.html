@@ -1,0 +1,165 @@
+
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container my-3">
+
+<!-- 게시글 -->
+<ul class="review_detail">
+	<div class="subject" th:text="${question.subject}"></div>
+	<div class="author" th:if="${question.author != null}" th:text="${question.author.username}"></div>
+	<div class="date" th:text="${question.modifyDate != null ? #temporals.format(question.modifyDate, 'yyyy-MM-dd HH:mm') : #temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></div><br>
+	<div class="content" th:text="${question.content}"></div>
+
+		<div class="my-3">
+			<button onclick="javascript:void(0);"
+				th:data-uri="@{|/review/vote/${question.id}|}">
+				좋아요 
+				<span class="badge rounded-pill bg-success" th:text="${#lists.size(question.voter)}"></span>
+			</button>
+
+			<button th:href="@{|/review/modify/${question.id}|}"
+				sec:authorize="isAuthenticated()"
+				th:if="${question.author != null and #authentication.getPrincipal().getUsername() == question.author.username}"
+				th:text="수정"></button>
+				
+
+			<button onclick="javascript:void(0);" th:data-uri="@{|/review/delete/${id}|}"
+				class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
+				th:if="${question.author != null and #authentication.getPrincipal().getUsername() == question.author.username}"
+				th:text="삭제"></button>
+		</div>
+
+<!-- 답변의 갯수 표시 -->
+<h5 th:text="|댓글 ${#lists.size(question.answerList)}|"></h5>
+
+<!-- 답변 반복 시작 -->
+<div class="answer" th:each="answer, loop : ${ans_paging}">
+	<div class="answer-header">
+  <div class="answer-author" th:text="${answer.author.username}"></div>
+  <div class="dot-menu">
+    <span onclick="toggleDropdown()">⋮</span> 
+    
+    <!-- 드롭다운 메뉴를 여는 버튼 -->
+    <div class="dropdown" id="dropdown-menu">
+      <a href="#" onclick="editComment()">수정</a>
+      <a href="#" onclick="deleteComment()">삭제</a>
+    </div>
+  </div>
+</div>
+
+	<div class="answer-body">
+		<div class="answer-content" th:text="${answer.content}"></div>
+			<div class="answer-info">
+			<div class="answer-date" th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></div>
+		<a href="javascript:void(0);" class="recommend btn"
+		th:data-uri="@{|/answer/vote/${answer.id}|}">
+		❤️ <span class="badge" th:text="${#lists.size(answer.voter)}"></span>
+		</a>
+	</div>
+	<div class="modify-info" th:if="${answer.modifyDate != null}">
+		<span>수정됨: </span>
+		<span th:text="${#temporals.format(answer.modifyDate, 'yyyy-MM-dd HH:mm')}"></span>
+	</div>
+  </div>
+</div>
+    
+<!-- 수정 버튼 
+	<a href="@{|/answer/modify/${answer.id}|}" class="btn modify-btn" sec:authorize="isAuthenticated()"
+		th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author.username}"
+		th:text="수정"></a>
+    
+  삭제 버튼
+	<a href="javascript:void(0);" class="btn delete-btn" th:data-uri="@{|/answer/delete/${answer.id}|}"
+	th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author.username}">
+		삭제 </a> --> 
+		
+
+</div>
+<!-- 답변 반복 끝  -->
+
+<!-- 답변 작성 -->
+<form th:action="@{|/breadmap/review/create/${question.id}|}" th:object="${answerForm}" method="post" class="my-3">
+	<div th:replace="~{form_errors :: formErrorsFragment}"></div>
+		<textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control" rows="10"></textarea>
+		<textarea sec:authorize="isAuthenticated()" th:field="*{content}" class="form-control" rows="10"></textarea>
+		<input type="submit" value="답변등록" class="btn btn-primary my-2">
+
+	
+<!-- 답변 페이징 처리 시작 -->
+<div th:if="${!ans_paging.isEmpty()}">
+	<ul class="pagination justify-content-center">
+		<li class="page-item" th:classappend="${!ans_paging.hasPrevious} ? 'disabled'">
+			<a class="page-link" th:href="@{|?ans-page=${ans_paging.number-1}|}" th:data-page="${ans_paging.number-1}">
+				<span>이전</span>
+			</a>
+		</li>
+		<li th:each="page: ${#numbers.sequence(0, ans_paging.totalPages-1)}"
+			th:if="${page >= ans_paging.number - 5 and page <= ans_paging.number+5}"
+			th:classappend="${page == ans_paging.number} ? 'active'"
+			class="page-item">
+			<a th:text="${page}" class="page-link" th:href="@{|?ans-page=${page}|}" th:data-page="${page}"></a>
+		</li>
+		<li class="page-item" th:classappend="${!ans_paging.hasNext()} ? 'disabled'">
+			<a class="page-link" th:href="@{|?ans-page=${ans_paging.number+1}|}" th:data-page="${ans_paging.number+1}">
+				<span>다음</span>
+			</a>
+		</li>
+	</ul>
+</div>
+</form>
+
+<script>
+const delete_elements = document.getElementsByClassName("delete");
+Array.from(delete_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        if(confirm("정말로 삭제하시겠습니까?")) {
+            location.href = this.dataset.uri;
+        };
+    });
+});
+const recommend_elements = document.getElementsByClassName("recommend");
+Array.from(recommend_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        if(confirm("정말로 추천하시겠습니까?")) {
+            location.href = this.dataset.uri;
+        };
+    });
+});
+
+//드롭다운 메뉴 보이기/숨기기 함수
+function toggleDropdown() {
+  const dropdown = document.getElementById("dropdown-menu");
+
+  // 드롭다운 메뉴의 display 스타일을 토글
+  if (dropdown) {
+    dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
+  }
+}
+
+// 수정 기능 (예제)
+function editComment() {
+  alert("댓글 수정 기능");
+  toggleDropdown(); // 드롭다운 메뉴 숨기기
+}
+
+// 삭제 기능 (예제)
+function deleteComment() {
+  alert("댓글 삭제 기능");
+  toggleDropdown(); // 드롭다운 메뉴 숨기기
+}
+
+// 메뉴 외부 클릭 시 드롭다운 메뉴 닫기
+window.onclick = function(event) {
+  const dropdown = document.getElementById("dropdown-menu");
+  // dot-menu 클릭이 아니면 드롭다운을 닫음
+  if (!event.target.closest('.dot-menu')) {
+    if (dropdown) dropdown.style.display = "none";
+  }
+};
+
+// 드롭다운 메뉴 열리는 이벤트 (예시)
+document.querySelector('.dot-menu span').addEventListener('click', function(event) {
+  toggleDropdown(); // 드롭다운 메뉴 토글
+  event.stopPropagation(); // 이벤트 전파 방지
+});
+</script>
+</html>

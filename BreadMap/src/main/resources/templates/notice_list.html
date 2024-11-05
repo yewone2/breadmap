@@ -1,0 +1,110 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container my-3">
+
+<div class="blank" style="text-shadow: -2px 0 #fff, 0 2px #fff, 2px 0 #fff, 0 -2px #fff;">
+	<a href="/breadmap/notice">공지사항</a></div>
+
+	<form>
+		<ul class="board_list">
+			<li class="board_list_tit">
+				<div class="num">번호</div>
+				<div class="subject">제목</div>
+				<div class="date">등록일</div>
+			</li>
+		
+		<ul class="board_list_con">
+			<li th:each="notice, index : ${noticeList}">
+				<div class="num" th:text="${notice.id}"></div>
+				<div class="subject"><a th:href="@{|/breadmap/notice/${notice.id}|}" th:text="${notice.subject}"></a></div>
+				<div class="date" th:text="${#temporals.format(notice.createDate, 'yyyy-MM-dd')}"></div>
+			</li>
+		</ul>
+			
+		</ul>
+	</form>
+</div>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

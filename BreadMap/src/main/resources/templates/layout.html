@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+	
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+	
+	<title>대전빵잇슈🥨</title>
+	<link rel="stylesheet" th:href="@{/css/BbangMap.css}">
+
+	<!-- Bootstrap CSS -->
+	<!--<link rel="stylesheet" type="text/css" th:href="@{/bootstrap.min.css}">-->
+	
+	<!-- sbb CSS -->
+	<link rel="stylesheet" type="text/css" th:href="@{/style.css}">
+	
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+	<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+	<!--<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>-->
+
+	<!--jquery dependency-->
+	<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+
+	<!-- summernote dependency-->
+	<link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.js"></script>
+	<script>
+		$(function(){
+			//summernote생성
+			$(".boardCn").find("[name=content]").summernote();
+		});
+	</script>
+</head>
+
+<header>
+	<nav>
+		<div class="navbar">
+			<div class="logo">
+				<img src="/css/assets/title.png" alt="Title Image" class="logo-image">
+					<a href="/breadmap">대전빵잇슈</a>
+			</div>
+			
+			<ul>
+				<li><a href="#">빵투어 루트</a></li>
+				<li><a href="#">위시리스트</a></li>
+				<li><a href="/breadmap/review">방문 후기</a></li>
+				<li><a href="/breadmap/notice">공지사항</a></li>
+			</ul>
+		
+			<div class="user-actions">
+				<a href="/breadmap/login" sec:authorize="isAnonymous()">로그인</a> 
+				<a href="/breadmap/logout" sec:authorize="isAuthenticated()">로그아웃</a> 
+				<a href="/breadmap/signup">회원가입</a>
+			</div>
+		</div>
+	</nav>
+</header>
+
+<!-- 기본 템플릿 안에 삽입될 내용 Start -->
+<th:block layout:fragment="content"></th:block>
+<!-- 기본 템플릿 안에 삽입될 내용 End -->
+	
+<!-- 자바스크립트 Start -->
+<th:block layout:fragment="script"></th:block>
+<!-- 자바스크립트 End -->
+	
