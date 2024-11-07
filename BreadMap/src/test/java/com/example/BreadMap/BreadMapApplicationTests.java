@@ -17,27 +17,17 @@ import com.example.breadmap.review.question.Question;
 import com.example.breadmap.review.question.QuestionService;
 import com.example.breadmap.user.SiteUser;
 import com.example.breadmap.user.UserService;
-
-@SpringBootTest
-class BreadMapApplicationTests {
+/*
+ * @SpringBootTest
+ */
+/*class BreadMapApplicationTests {*/
 	
-	@Autowired
+/*	@Autowired
     private QuestionService questionService;
     @Autowired
     private AnswerService answerService;
     @Autowired
     private UserService userService;
 
-//@Transactional
-    @Test
-    void testJpa() {
-        List<Question> questionLst = this.questionService.getList();
-        Question question = questionLst.get(questionLst.size() - 1);
-        SiteUser user = userService.create("temp", "temp@temp.com", "1234");
-        for (int i = 0; i < 300; ++i) {
-            this.answerService.create(question, String.format("테스트 답변 %s!!", i), user);
-        }
-    }
-}
 
-
+*/

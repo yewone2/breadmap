@@ -1,4 +1,5 @@
 
+
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container my-3">
 
@@ -10,10 +11,9 @@
 	<div class="content" th:text="${question.content}"></div>
 
 		<div class="my-3">
-			<button onclick="javascript:void(0);"
-				th:data-uri="@{|/review/vote/${question.id}|}">
+		
 				좋아요 
-				<span class="badge rounded-pill bg-success" th:text="${#lists.size(question.voter)}"></span>
+				
 			</button>
 
 			<button th:href="@{|/review/modify/${question.id}|}"
@@ -29,21 +29,24 @@
 		</div>
 
 <!-- 답변의 갯수 표시 -->
-<h5 th:text="|댓글 ${#lists.size(question.answerList)}|"></h5>
+
+❤️ <span th:text="${#lists.size(question.voter)}"></span>
+<h5 class="answer-count" th:text="|좋아요 ${#lists.size(question.voter)}"></h5>
+<h5 class="answer-count" th:text="|💬 댓글 ${#lists.size(question.answerList)}|"></h5>
 
 <!-- 답변 반복 시작 -->
 <div class="answer" th:each="answer, loop : ${ans_paging}">
 	<div class="answer-header">
-  <div class="answer-author" th:text="${answer.author.username}"></div>
-  <div class="dot-menu">
-    <span onclick="toggleDropdown()">⋮</span> 
+	<div class="answer-author" th:text="${answer.author.username}"></div>
     
     <!-- 드롭다운 메뉴를 여는 버튼 -->
+<div class="dot-menu" sec:authorize="isAuthenticated()" onclick="toggleDropdown()">
+    <span>⋮</span> 
     <div class="dropdown" id="dropdown-menu">
-      <a href="#" onclick="editComment()">수정</a>
-      <a href="#" onclick="deleteComment()">삭제</a>
-    </div>
-  </div>
+		<!--<a href="javascript:void(0);" onclick="editComment(${answer.id})">수정</a>-->
+		<a href="javascript:void(0);" th:data-uri="@{|/answer/delete/${answer.id}|}">삭제</a>
+	</div>
+</div>
 </div>
 
 	<div class="answer-body">
@@ -71,17 +74,22 @@
 	<a href="javascript:void(0);" class="btn delete-btn" th:data-uri="@{|/answer/delete/${answer.id}|}"
 	th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author.username}">
 		삭제 </a> --> 
-		
+		<!-- 답변 작성 -->
 
-</div>
+<form th:action="@{|/answer/create/${question.id}|}" th:object="${answerForm}" method="post" class="comment-box">
+	<div class="comment-form">
+		
+		
+	<div th:replace="~{form_errors :: formErrorsFragment}"></div>
+	<div class=comment-user th:text="${question.author.username}"></div>
+		<textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control" rows="10"></textarea>
+		<textarea sec:authorize="isAuthenticated()" th:field="*{content}" class="comment-input"></textarea>
+		<input type="submit" value="등록" class="submit-button">
+	</div>
+</form>
+
 <!-- 답변 반복 끝  -->
 
-<!-- 답변 작성 -->
-<form th:action="@{|/breadmap/review/create/${question.id}|}" th:object="${answerForm}" method="post" class="my-3">
-	<div th:replace="~{form_errors :: formErrorsFragment}"></div>
-		<textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control" rows="10"></textarea>
-		<textarea sec:authorize="isAuthenticated()" th:field="*{content}" class="form-control" rows="10"></textarea>
-		<input type="submit" value="답변등록" class="btn btn-primary my-2">
 
 	
 <!-- 답변 페이징 처리 시작 -->
@@ -105,17 +113,18 @@
 		</li>
 	</ul>
 </div>
-</form>
 
-<script>
-const delete_elements = document.getElementsByClassName("delete");
-Array.from(delete_elements).forEach(function(element) {
-    element.addEventListener('click', function() {
-        if(confirm("정말로 삭제하시겠습니까?")) {
-            location.href = this.dataset.uri;
-        };
-    });
-});
+<script layout:fragment="script" type="text/javascript">
+  // 'delete' 클래스를 가진 모든 요소를 찾아서 클릭 이벤트 추가
+  const delete_elements = document.getElementsByClassName("delete");
+  Array.from(delete_elements).forEach(function(element) {
+      element.addEventListener('click', function() {
+          if (confirm("정말로 삭제하시겠습니까?")) {
+              location.href = this.dataset.uri;
+          }
+      });
+  });
+  
 const recommend_elements = document.getElementsByClassName("recommend");
 Array.from(recommend_elements).forEach(function(element) {
     element.addEventListener('click', function() {
@@ -125,41 +134,30 @@ Array.from(recommend_elements).forEach(function(element) {
     });
 });
 
-//드롭다운 메뉴 보이기/숨기기 함수
-function toggleDropdown() {
-  const dropdown = document.getElementById("dropdown-menu");
-
-  // 드롭다운 메뉴의 display 스타일을 토글
-  if (dropdown) {
-    dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
+  // 드롭다운 메뉴 보이기/숨기기 함수
+  function toggleDropdown() {
+    const dropdown = document.getElementById("dropdown-menu");
+    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
   }
-}
 
-// 수정 기능 (예제)
-function editComment() {
-  alert("댓글 수정 기능");
-  toggleDropdown(); // 드롭다운 메뉴 숨기기
-}
-
-// 삭제 기능 (예제)
-function deleteComment() {
-  alert("댓글 삭제 기능");
-  toggleDropdown(); // 드롭다운 메뉴 숨기기
-}
-
-// 메뉴 외부 클릭 시 드롭다운 메뉴 닫기
-window.onclick = function(event) {
-  const dropdown = document.getElementById("dropdown-menu");
-  // dot-menu 클릭이 아니면 드롭다운을 닫음
-  if (!event.target.closest('.dot-menu')) {
-    if (dropdown) dropdown.style.display = "none";
+  // 수정 기능 (예제)
+	function editComment() {
+		window.location.href='/answer/modify/${answerId}'; 
+		toggleDropdown(); // 드롭다운 메뉴 숨기기
   }
-};
 
-// 드롭다운 메뉴 열리는 이벤트 (예시)
-document.querySelector('.dot-menu span').addEventListener('click', function(event) {
-  toggleDropdown(); // 드롭다운 메뉴 토글
-  event.stopPropagation(); // 이벤트 전파 방지
-});
+  // 삭제 기능 (예제)
+  function deleteComment() {
+    alert("정말로 삭제하시겠습니까?");
+    toggleDropdown(); // 드롭다운 메뉴 숨기기
+  }
+
+  // 메뉴를 클릭 외 다른 부분 클릭시 닫기
+  window.onclick = function(event) {
+    if (!event.target.matches('.dot-menu') && !event.target.matches('.dot-menu span')) {
+      document.getElementById("dropdown-menu").style.display = "none";
+    }
+  }
 </script>
+
 </html>
